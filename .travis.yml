@@ -7,3 +7,5 @@ compiler:
 script:
   - g++ main.cpp -std=c++11
   - ./a.out
+after_success:
+ - bash <(curl -s https://codecov.io/bash) 
