@@ -1,0 +1,138 @@
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+language: cpp
+os:
+  - linux
+compiler:
+  - gcc
+script:
+  - g++ main.cpp -std=c++11
+  - ./a.out
+after_success:
+ bash <(curl -s https://codecov.io/bash) 
+=======
+dist:     xenial
+
+language: cpp
+
+os:
+    # будем прогонять CI и на Linux, и на Mac OS X
+    - linux
+    - osx
+
+compiler:
+    - gcc
+    - clang
+
+env:
+    # список переменных окружения, влияющих на матрицу сборки:
+    - TARGET_CPU=amd64 BUILD_CONFIGURATION=Debug
+    - TARGET_CPU=amd64 BUILD_CONFIGURATION=Release
+    - TARGET_CPU=x86 BUILD_CONFIGURATION=Debug
+    - TARGET_CPU=x86 BUILD_CONFIGURATION=Release
+
+matrix:
+    exclude:
+        # вручную исключим ненужные элементы из матрицы сборки:
+        - os:       osx
+          compiler: gcc
+
+        - os:  osx
+          env: TARGET_CPU=x86 BUILD_CONFIGURATION=Debug
+
+        - os:  osx
+          env: TARGET_CPU=x86 BUILD_CONFIGURATION=Release
+
+install:
+    # скрипт настройки среды и установки зависимостей:
+    - source ci/travis/install-$TRAVIS_OS_NAME.sh
+
+script:
+    # скрипт сборки и тестирования проекта:
+    - mkdir build
+    - cd build
+    - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION -DTARGET_CPU=$TARGET_CPU
+    - cmake --build .
+    - ctest --output-on-failure
+
+deploy:
+    # выкладываем tagged-коммиты на GitHub Releases:
+    provider:     releases
+    file:         <package-file>
+    skip_cleanup: true
+    overwrite:    true
+
+    api_key:
+        secure:   7P2f0KVE3bfKvb-iqjdR4w
+
+    on:
+        tags:     true
+>>>>>>> parent of 1ff91ed... Update .travis.yml
+=======
+language: c++
+os:
+  - linux
+  - osx
+compiler:
+  - clang
+  - gcc
+before_install:
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y \
+      && sudo apt-get update -qq \
+      && if [ "$CXX" == "g++" ]; then
+        sudo apt-get install -qq g++-9.2 && export CXX="g++-9.2" CC="gcc-9.2"
+      fi
+    fi
+env:
+  - CTEST_OUTPUT_ON_FAILURE=1
+before_script:
+  - mkdir build
+  - cd build
+  - cmake ..
+  - cd ..
+script:
+  - cmake --build build
+  - cmake --build build --target test
+=======
+language: cpp
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-4.9
+      - g++-4.9
+
+>>>>>>> e6d057e... Update .travis.yml
+matrix:
+  include:
+    - dist: trusty
+      compiler: clang
+      before_install:
+        - sudo add-apt-repository ppa:ricotz/testing -y
+        - sudo add-apt-repository ppa:aacid/openjp2trusty -y
+        - sudo apt-get -qq update
+        - sudo apt-get install -y libopenjp2-7-dev qtbase5-dev gobject-introspection libglib2.0-dev libgtk-3-dev libgirepository1.0-dev libnss3-dev ninja-build
+      script: cmake . -G Ninja -DFONT_CONFIGURATION=generic && ninja
+
+    - os: osx
+      osx_image: xcode10.1
+      before_install:
+        - brew uninstall poppler gdal postgis python@2 mercurial
+        - brew install poppler --only-dependencies --build-from-source
+      script: cmake . -DFONT_CONFIGURATION=generic -DBUILD_SHARED_LIBS=OFF && make
+
+<<<<<<< HEAD
+>>>>>>> parent of e6d057e... Update .travis.yml
+=======
+    - os: osx
+      osx_image: xcode11.2
+      before_install:
+        - brew uninstall poppler gdal postgis python@2
+        - brew install poppler --only-dependencies --build-from-source
+      script: cmake . -DFONT_CONFIGURATION=generic -DBUILD_SHARED_LIBS=OFF && make
+>>>>>>> e6d057e... Update .travis.yml
