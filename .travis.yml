@@ -38,11 +38,6 @@ os:
     - osx
 compiler:
     - gcc
-env:
-    - TARGET_CPU=amd64 BUILD_CONFIGURATION=Debug
-    - TARGET_CPU=amd64 BUILD_CONFIGURATION=Release
-    - TARGET_CPU=x86 BUILD_CONFIGURATION=Debug
-    - TARGET_CPU=x86 BUILD_CONFIGURATION=Release
 script:
   - g++ main.cpp -std=c++11
   - ./a.out
