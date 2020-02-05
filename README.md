@@ -18,7 +18,6 @@ We are members of Astronomy club located in Krasnoyarsk, Russia. To learn more, 
 - `planetsystem.h` - header which  contains `planetsystem` class.
 - `custmvector.h` - header which  contains `customvector` class.
 - `planetsystem.ini` - initialization file which describes parameters of planetsystem and planets.
-- `ini.h`,`INIReader.h`,`INIReader.cpp` - `.ini` parser library.
 
 ## The Latest Version
 
