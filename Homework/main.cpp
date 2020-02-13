@@ -2,7 +2,7 @@
 #include <cmath>
 #include <iostream>
 
-#define TMAX 1e8
+#define TMAX 1e9
 #define DT 1 
 const double G = 6.67408e-11;
 
@@ -18,6 +18,12 @@ public:
 	double y{};
 
 	vector() = default;
+
+	vector(const double & a, const double & b){
+		vector res;
+		res.x = a;
+		res.y = b;
+	}
 
 
 
@@ -79,6 +85,17 @@ public:
 		y = b.y;
 		return *this;
 	}
+	vector operator +=(const vector& b) {
+		x=b.x + x;
+		y=b.y + y;
+		return *this;
+	}
+
+	vector operator -=(const vector& b) {
+		x = x - b.x;
+		y = y - b.y;
+		return *this;
+	}
 
 	vector operator-()const {
 		vector res;
@@ -114,29 +131,51 @@ public:
 
 	void move() {
 		r = r + v * DT;
-		//f = ((-G * (m * M)) / (pow(abs(r), 3))) * r - rPlanetTwo; //todo fix
 		v = v + f/m * DT;
 	}
 };
 
 class planetsystem {
 public:
-	planet planet1, planet2;
+	planet *planets;
+	unsigned N;
+
+	explicit planetsystem(unsigned n){
+		planets = new planet[n];
+		N = n;
+	}
+
+	~planetsystem(){
+		delete[]planets;
+	}
+
+	planetsystem(const planetsystem &A){
+		planets = new planet[A.N];
+		for (int i = 0; i < A.N; i++)
+			planets[i] = A.planets[i];
+		N = A.N;
+	}
 
 	void move(){
 		vector f;
-		f = ((-G * (planet1.m * planet2.m)) / (pow(abs(planet1.r - planet2.r), 3))) * (planet1.r - planet2.r);
-		planet1.f = -f;
-		planet1.move();
-		planet2.f = f;
-		planet2.move();
+		for (int i = 0; i < N; i++)
+			planets[i].f = vector(0., 0.);
+		for (int i = 0; i < N; i++){
+			for (int x = i + 1; x < N; x++){
+				f = ((-G * (planets[i].m * planets[x].m)) / (pow(abs(planets[i].r - planets[x].r), 3))) * (planets[i].r - planets[x].r);
+				planets[i].f += -f;
+				planets[x].f += f;
+			}
+			planets[i].move();
+		}
+
 	}
 
 };
 
 int main() {
 
-	planetsystem system;
+	planetsystem system(2);
 
 	/*FILE* Subject = fopen("Subject.txt", "r");
 	fscanf(Subject, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
@@ -146,17 +185,17 @@ int main() {
 
 
 
-	system.planet2.r.x = 149e9;
-	system.planet2.r.y = 0;
-	system.planet2.v.x = 0;
-	system.planet2.v.y = 29783.;
-	system.planet2.m = 5.9726e24;
+	system.planets[1].r.x = 149e9;
+	system.planets[1].r.y = 0;
+	system.planets[1].v.x = 0;
+	system.planets[1].v.y = 29783.;
+	system.planets[1].m = 5.9726e24;
 
-	system.planet1.r.x = 0.;
-	system.planet1.r.y = 0.;
-	system.planet1.v.x = 0.;
-	system.planet1.m = 1.989e30;
-	system.planet1.v.y = -(system.planet2.m*system.planet2.v.y) / system.planet1.m;
+	system.planets[0].r.x = 0.;
+	system.planets[0].r.y = 0.;
+	system.planets[0].v.x = 0.;
+	system.planets[0].m = 1.989e30;
+	system.planets[0].v.y = -(system.planets[1].m*system.planets[1].v.y) / system.planets[0].m;
 
 	//printf("%lf %lf %lf %lf\n\n", system.planet1.r.x, system.planet1.r.y, system.planet2.r.x, system.planet2.r.y);
 
@@ -172,7 +211,7 @@ int main() {
 			//printf("%i %lf %lf %lf %lf\n", i, system.planet1.r.x, system.planet1.r.y, system.planet2.r.x, system.planet2.r.y);
 
 		if (i % 10000 == 0)
-		fprintf(F, "%i %lf %lf %lf %lf\n", i, system.planet1.r.x, system.planet1.r.y, system.planet2.r.x, system.planet2.r.y);
+			fprintf(F, "%i %lf %lf %lf %lf\n", i, system.planets[0].r.x, system.planets[0].r.y, system.planets[1].r.x, system.planets[1].r.y);
 	}
 	fclose(F);
 	//scanf("%*c");
