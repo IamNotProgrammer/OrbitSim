@@ -1,19 +1,45 @@
-/*
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+#ifndef OSIM1_PLANETSYSTEM_H
+#define OSIM1_PLANETSYSTEM_H
 
 #include "planet.h"
 
+#define G 6.67408e-11
+
 class planetsystem {
 public:
-    planet planet1, planet2;
+    planet *planets;
+    unsigned N;
+
+    explicit planetsystem(unsigned n) {
+        planets = new planet[n];
+        N = n;
+    }
+
+    ~planetsystem() {
+        delete[]planets;
+    }
+
+    planetsystem(const planetsystem &A) {
+        planets = new planet[A.N];
+        for (int i = 0; i < A.N; i++)
+            planets[i] = A.planets[i];
+        N = A.N;
+    }
+
+    void move() {
+        cvector f;
+        for (int i = 0; i < N; i++)
+            planets[i].f = cvector(0., 0.);
+        for (int i = 0; i < N; i++) {
+            for (int x = i + 1; x < N; x++) {
+                f = ((-G * (planets[i].m * planets[x].m)) / (pow(abs(planets[i].r - planets[x].r), 3))) *
+                    (planets[i].r - planets[x].r);
+                planets[i].f += -f;
+                planets[x].f += f;
+            }
+            planets[i].move();
+        }
+    }
 };
+
+#endif //OSIM1_PLANETSYSTEM_H
