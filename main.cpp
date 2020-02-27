@@ -2,7 +2,7 @@
 #include <cmath>
 #include <iostream>
 
-#define TMAX 1e9
+#define TMAX 1e6
 #define DT 1 
 const double G = 6.67408e-11;
 
@@ -175,47 +175,113 @@ public:
 
 int main() {
 
-	planetsystem system(2);
+	planetsystem system(8);
 
-	/*FILE* Subject = fopen("Subject.txt", "r");
-	fscanf(Subject, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
-		&system.planet1.r.x, &system.planet1.r.y, &system.planet1.v.x, &system.planet1.v.y, &system.planet1.m,
-		&system.planet2.r.x, &system.planet2.r.y, &system.planet2.v.x, &system.planet2.v.y, &system.planet2.m);
-	fclose(Subject);*/
+	double alpha,beta, rocketvabs,rocketh;
+
+	alpha = 90;
+	beta = 0;
+	rocketvabs = 15000;
+	rocketh = 6550000. ;
 
 
+	system.planets[0].r.x = 0.; //sun
+	system.planets[0].r.y = 0.;
+	system.planets[0].v.x = 0.;
+	system.planets[0].v.y = 0.;
+	system.planets[0].m = 1.989e30;
 
-	system.planets[1].r.x = 149e9;
+	system.planets[1].r.x = 57909227.e3; //mercury
+	system.planets[1].r.y = 0.;
+	system.planets[1].v.x = 0.;
+	system.planets[1].v.y = 47360.;
+	system.planets[1].m = 3.33022e23;
+
+	system.planets[2].r.x = 108208930.e3; //venus
+	system.planets[2].r.y = 0.;
+	system.planets[2].v.x = 0.;
+	system.planets[2].v.y = 35020.;
+	system.planets[2].m = 4.8675e24;
+
+	system.planets[3].r.x = 149e9; //earth
+	system.planets[3].r.y = 0.;
+	system.planets[3].v.x = 0.;
+	system.planets[3].v.y = 29783.;
+	system.planets[3].m = 5.9726e24;
+
+	system.planets[4].r.x = 2.2794382e11; //mars
+	system.planets[4].r.y = 0.;
+	system.planets[4].v.x = 0.;
+	system.planets[4].v.y = 24077.;
+	system.planets[4].m = 6.4171e23;
+
+	system.planets[5].r.x = 7.405736e11; //jupiter
+	system.planets[5].r.y = 0.;
+	system.planets[5].v.x = 0.;
+	system.planets[5].v.y = 13070.;
+	system.planets[5].m = 1.8986e27;
+
+	system.planets[6].r.x = system.planets[3].r.x + 384399000.; //moon
+	system.planets[6].r.y = 0.;
+	system.planets[6].v.x = 0.;
+	system.planets[6].v.y = system.planets[3].v.y + 1023.;
+	system.planets[6].m = 7.3477e22;
+
+	system.planets[7].r.x = system.planets[3].r.x + cos(beta / 180 * 3.1415)*rocketh; //rocket
+	system.planets[7].r.y = system.planets[3].r.y + sin(beta / 180 * 3.1415)*rocketh;
+	system.planets[7].v.x = system.planets[3].v.x + cos(alpha / 180 * 3.1415)*rocketvabs;
+	system.planets[7].v.y = system.planets[3].v.y + sin(alpha / 180 * 3.1415)*rocketvabs;
+	system.planets[7].m = 100.;
+
+	/*
+	system.planets[1].r.x = 149e9; //saturn
 	system.planets[1].r.y = 0;
 	system.planets[1].v.x = 0;
 	system.planets[1].v.y = 29783.;
 	system.planets[1].m = 5.9726e24;
 
-	system.planets[0].r.x = 0.;
-	system.planets[0].r.y = 0.;
-	system.planets[0].v.x = 0.;
-	system.planets[0].m = 1.989e30;
-	system.planets[0].v.y = -(system.planets[1].m*system.planets[1].v.y) / system.planets[0].m;
+	system.planets[1].r.x = 149e9; //uranus
+	system.planets[1].r.y = 0;
+	system.planets[1].v.x = 0;
+	system.planets[1].v.y = 29783.;
+	system.planets[1].m = 5.9726e24;
 
-	//printf("%lf %lf %lf %lf\n\n", system.planet1.r.x, system.planet1.r.y, system.planet2.r.x, system.planet2.r.y);
+	system.planets[1].r.x = 149e9; //neptune
+	system.planets[1].r.y = 0;
+	system.planets[1].v.x = 0;
+	system.planets[1].v.y = 29783.;
+	system.planets[1].m = 5.9726e24;
+*/
 
-	//cout « system.planet1.r.x « "\t" « system.planet1.r.y « "\n";
+
+
+
+
 
 	FILE* F = fopen("data.txt", "w");
+	FILE* F1 = fopen("data1.txt", "w");
+	FILE* F2 = fopen("data2.txt", "w");
 
 	for (int i = 1; i <= TMAX; i++) {
 
 		system.move();
 
-		//if (i < 5)
-			//printf("%i %lf %lf %lf %lf\n", i, system.planet1.r.x, system.planet1.r.y, system.planet2.r.x, system.planet2.r.y);
-
-		if (i % 10000 == 0)
-			fprintf(F, "%i %lf %lf %lf %lf\n", i, system.planets[0].r.x, system.planets[0].r.y, system.planets[1].r.x, system.planets[1].r.y);
+		if (i % 10000 == 0){
+			for (int j = 0; j < system.N; j++)
+				fprintf(F, "%lf %lf ", system.planets[j].r.x, system.planets[j].r.y);
+			fprintf(F, "\n");
+		}
+		if (i % 100 == 0){
+			vector nxnastran = system.planets[3].r - system.planets[6].r;
+			vector solidworks = system.planets[3].r - system.planets[7].r;
+			fprintf(F1, "%lf %lf %lf %lf", nxnastran.x, nxnastran.y, solidworks.x, solidworks.y);
+			fprintf(F1, "\n");
+		}
+		if (i % 100 == 0){
+			vector catia = system.planets[7].r - system.planets[6].r;
+			fprintf(F2, "%lf %lf ", catia.x, catia.y);
+			fprintf(F2, "\n");
+		}
 	}
 	fclose(F);
-	//scanf("%*c");
 }
-
-/* scanf("%*c %*c %*c");
-*/
