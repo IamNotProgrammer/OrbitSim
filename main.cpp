@@ -1,324 +1,121 @@
-<<<<<<< HEAD
+#include <cmath>
 #include <iostream>
 #include "planetsystem.h"
 
-#define TMAX 1e9
-#define DT 1
+#define TMAX 1e6
 
 using namespace std;
 
 int main() {
 
-    planetsystem system(2);
+    planetsystem system(11);
 
-    system.planets[1].r.x = 149e9;
-    system.planets[1].r.y = 0;
-    system.planets[1].v.x = 0;
-    system.planets[1].v.y = 29783.;
-    system.planets[1].m = 5.9726e24;
+    double alpha, beta, rocketvabs, rocketh;
 
-    system.planets[0].r.x = 0.;
-    system.planets[0].r.y = 0.;
-    system.planets[0].v.x = 0.;
-    system.planets[0].m = 1.989e30;
-    system.planets[0].v.y = -(system.planets[1].m * system.planets[1].v.y) / system.planets[0].m;
+    alpha = 90.;
+    beta = 0.;
+    rocketvabs = 15.e3;
+    rocketh = 655.e4;
 
-    FILE *F = fopen("/home/vadimsam/data.txt", "w");
+    system.objects[0].r.x = 0.; //sun
+    system.objects[0].r.y = 0.;
+    system.objects[0].v.x = 0.;
+    system.objects[0].v.y = 0.;
+    system.objects[0].m = 1.989e30;
+
+    system.objects[1].r.x = 57909227.e3; //mercury
+    system.objects[1].r.y = 0.;
+    system.objects[1].v.x = 0.;
+    system.objects[1].v.y = 4.7362e4;
+    system.objects[1].m = 330104.e18;
+
+    system.objects[2].r.x = 108209475.e3; //venus
+    system.objects[2].r.y = 0.;
+    system.objects[2].v.x = 0.;
+    system.objects[2].v.y = 3.5020e4;
+    system.objects[2].m = 486732.e19;
+
+    system.objects[3].r.x = 149598262.e3; //earth
+    system.objects[3].r.y = 0.;
+    system.objects[3].v.x = 0.;
+    system.objects[3].v.y = 2.9783e4;
+    system.objects[3].m = 597219.e19;
+
+    system.objects[4].r.x = 227943824.e3; //mars
+    system.objects[4].r.y = 0.;
+    system.objects[4].v.x = 0.;
+    system.objects[4].v.y = 2.4077e4;
+    system.objects[4].m = 641693.e18;
+
+    system.objects[5].r.x = 778340821.e3; //jupiter
+    system.objects[5].r.y = 0.;
+    system.objects[5].v.x = 0.;
+    system.objects[5].v.y = 1.3056e4;
+    system.objects[5].m = 189813.e22;
+
+    system.objects[6].r.x = 1426666422.e3; //saturn
+    system.objects[6].r.y = 0.;
+    system.objects[6].v.x = 0.;
+    system.objects[6].v.y = 9.6391e3;
+    system.objects[6].m = 568319.e21;
+
+    system.objects[7].r.x = 2870658186.e3; //uranus
+    system.objects[7].r.y = 0.;
+    system.objects[7].v.x = 0.;
+    system.objects[7].v.y = 6.7991e3;
+    system.objects[7].m = 868103.e20;
+
+    system.objects[8].r.x = 4498396441.e3; //neptune
+    system.objects[8].r.y = 0.;
+    system.objects[8].v.x = 0.;
+    system.objects[8].v.y = 5.4349e3;
+    system.objects[8].m = 102410.21;
+
+    system.objects[9].r.x = system.objects[3].r.x + 384399.e3; //earth's moon
+    system.objects[9].r.y = 0.;
+    system.objects[9].v.x = 0.;
+    system.objects[9].v.y = system.objects[3].v.y + 1023.;
+    system.objects[9].m = 7.3477e22;
+
+    system.objects[10].r.x = system.objects[3].r.x + cos(beta / 180 * M_PI) * rocketh; //rocket
+    system.objects[10].r.y = system.objects[3].r.y + sin(beta / 180 * M_PI) * rocketh;
+    system.objects[10].v.x = system.objects[3].v.x + cos(alpha / 180 * M_PI) * rocketvabs;
+    system.objects[10].v.y = system.objects[3].v.y + sin(alpha / 180 * M_PI) * rocketvabs;
+    system.objects[10].m = 100.;
+
+    //todo update indexes
+
+    FILE *entirepsout = fopen("/home/vadimsam/entireplanetsystem.txt", "w");
+    FILE *moonrocket = fopen("/home/vadimsam/moonrocket.txt", "w");
+    FILE *F2 = fopen("/home/vadimsam/data2.txt", "w");
 
     for (int i = 1; i <= TMAX; i++) {
+
         system.move();
-        if (i % 10000 == 0)
-            fprintf(F, "%lf %lf %lf %lf\n", system.planets[0].r.x, system.planets[0].r.y, system.planets[1].r.x,
-                    system.planets[1].r.y);
+
+        if (i % 10000 == 0) {
+            for (int j = 0; j < system.N; j++)
+                fprintf(entirepsout, "%lf %lf ", system.objects[j].r.x, system.objects[j].r.y);
+            fprintf(entirepsout, "\n");
+        }
+
+        if (i % 100 == 0) {
+            cvector moondx = system.objects[3].r - system.objects[9].r;
+            cvector rocketdx = system.objects[3].r - system.objects[10].r;
+            fprintf(moonrocket, "%lf %lf %lf %lf", moondx.x, moondx.y, rocketdx.x, rocketdx.y);
+            fprintf(moonrocket, "\n");
+        }
+
+        if (i % 100 == 0) {
+            cvector rocketdr = system.objects[10].r - system.objects[9].r;
+            fprintf(F2, "%lf %lf ", rocketdr.x, rocketdr.y);
+            fprintf(F2, "\n");
+        }
     }
-    fclose(F);
-}
-=======
-#define _CRT_SECURE_NO_WARNINGS
-#include <cmath>
-#include <iostream>
 
-#define TMAX 1e6
-#define DT 1 
-const double G = 6.67408e-11;
-
-
-using namespace std;
-
-
-
-class vector {
-public:
-
-	double x{};
-	double y{};
-
-	vector() = default;
-
-	vector(const double & a, const double & b){
-		vector res;
-		res.x = a;
-		res.y = b;
-	}
-
-
-
-	vector operator +(const vector& b)const {
-		vector res;
-		res.x = b.x + x;
-		res.y = b.y + y;
-		return res;
-	}
-	vector operator -(const vector& b)const {
-		vector res;
-		res.x = b.x - x;
-		res.y = b.y - y;
-		return res;
-	}
-
-	vector operator +(const double& i)const {
-		vector res;
-		res.x = x + i;
-		res.y = y + i;
-		return res;
-	}
-	vector operator -(const double& i)const {
-		vector res;
-		res.x = x - i;
-		res.y = y - i;
-		return res;
-	}
-	vector operator *(const double& i)const {
-		vector res;
-		res.x = x * i;
-		res.y = y * i;
-		return res;
-	}
-	vector operator /(const double& i)const {
-		vector res;
-		res.x = x / i;
-		res.y = y / i;
-		return res;
-	}
-	double operator *(const vector& b) {
-		double res;
-		res = x * b.x + y * b.y;
-		return res;
-	}
-	double operator /(const vector& b) {
-		double res;
-		res = x * b.x - y * b.y;
-		return res;
-	}
-	bool operator == (const vector& b)const {
-		return(x == b.x) && (y == b.y);
-	}
-	bool operator !=(const vector& b)const {
-		return !(*this == b);
-	}
-	vector& operator=(const vector& b) {
-		x = b.x;
-		y = b.y;
-		return *this;
-	}
-	vector operator +=(const vector& b) {
-		x=b.x + x;
-		y=b.y + y;
-		return *this;
-	}
-
-	vector operator -=(const vector& b) {
-		x = x - b.x;
-		y = y - b.y;
-		return *this;
-	}
-
-	vector operator-()const {
-		vector res;
-		res.x = -x;
-		res.y = -y;
-		return res;
-	}
-};
-
-double abs(const vector &vi){
-	return sqrt(vi.x*vi.x + vi.y*vi.y);
+    fclose(entirepsout);
+    fclose(moonrocket);
+    fclose(F2);
 }
 
-vector operator +(double x, const vector& y) {
-	return y + x;
-}
-vector operator -(double x, const vector& y) {
-	return y - x;
-}
-vector operator *(double x, const vector& y) {
-	return y * x;
-}
-vector operator /(double x, const vector& y) {
-	return y / x;
-}
-
-class planet {
-public:
-	double m{};
-	vector r, v, f;
-
-	planet() = default;
-
-	void move() {
-		r = r + v * DT;
-		v = v + f/m * DT;
-	}
-};
-
-class planetsystem {
-public:
-	planet *planets;
-	unsigned N;
-
-	explicit planetsystem(unsigned n){
-		planets = new planet[n];
-		N = n;
-	}
-
-	~planetsystem(){
-		delete[]planets;
-	}
-
-	planetsystem(const planetsystem &A){
-		planets = new planet[A.N];
-		for (int i = 0; i < A.N; i++)
-			planets[i] = A.planets[i];
-		N = A.N;
-	}
-
-	void move(){
-		vector f;
-		for (int i = 0; i < N; i++)
-			planets[i].f = vector(0., 0.);
-		for (int i = 0; i < N; i++){
-			for (int x = i + 1; x < N; x++){
-				f = ((-G * (planets[i].m * planets[x].m)) / (pow(abs(planets[i].r - planets[x].r), 3))) * (planets[i].r - planets[x].r);
-				planets[i].f += -f;
-				planets[x].f += f;
-			}
-			planets[i].move();
-		}
-
-	}
-
-};
-
-int main() {
-
-	planetsystem system(8);
-
-	double alpha,beta, rocketvabs,rocketh;
-
-	alpha = 90;
-	beta = 0;
-	rocketvabs = 15000;
-	rocketh = 6550000. ;
-
-
-	system.planets[0].r.x = 0.; //sun
-	system.planets[0].r.y = 0.;
-	system.planets[0].v.x = 0.;
-	system.planets[0].v.y = 0.;
-	system.planets[0].m = 1.989e30;
-
-	system.planets[1].r.x = 57909227.e3; //mercury
-	system.planets[1].r.y = 0.;
-	system.planets[1].v.x = 0.;
-	system.planets[1].v.y = 47360.;
-	system.planets[1].m = 3.33022e23;
-
-	system.planets[2].r.x = 108208930.e3; //venus
-	system.planets[2].r.y = 0.;
-	system.planets[2].v.x = 0.;
-	system.planets[2].v.y = 35020.;
-	system.planets[2].m = 4.8675e24;
-
-	system.planets[3].r.x = 149e9; //earth
-	system.planets[3].r.y = 0.;
-	system.planets[3].v.x = 0.;
-	system.planets[3].v.y = 29783.;
-	system.planets[3].m = 5.9726e24;
-
-	system.planets[4].r.x = 2.2794382e11; //mars
-	system.planets[4].r.y = 0.;
-	system.planets[4].v.x = 0.;
-	system.planets[4].v.y = 24077.;
-	system.planets[4].m = 6.4171e23;
-
-	system.planets[5].r.x = 7.405736e11; //jupiter
-	system.planets[5].r.y = 0.;
-	system.planets[5].v.x = 0.;
-	system.planets[5].v.y = 13070.;
-	system.planets[5].m = 1.8986e27;
-
-	system.planets[6].r.x = system.planets[3].r.x + 384399000.; //moon
-	system.planets[6].r.y = 0.;
-	system.planets[6].v.x = 0.;
-	system.planets[6].v.y = system.planets[3].v.y + 1023.;
-	system.planets[6].m = 7.3477e22;
-
-	system.planets[7].r.x = system.planets[3].r.x + cos(beta / 180 * 3.1415)*rocketh; //rocket
-	system.planets[7].r.y = system.planets[3].r.y + sin(beta / 180 * 3.1415)*rocketh;
-	system.planets[7].v.x = system.planets[3].v.x + cos(alpha / 180 * 3.1415)*rocketvabs;
-	system.planets[7].v.y = system.planets[3].v.y + sin(alpha / 180 * 3.1415)*rocketvabs;
-	system.planets[7].m = 100.;
-
-	/*
-	system.planets[1].r.x = 149e9; //saturn
-	system.planets[1].r.y = 0;
-	system.planets[1].v.x = 0;
-	system.planets[1].v.y = 29783.;
-	system.planets[1].m = 5.9726e24;
-
-	system.planets[1].r.x = 149e9; //uranus
-	system.planets[1].r.y = 0;
-	system.planets[1].v.x = 0;
-	system.planets[1].v.y = 29783.;
-	system.planets[1].m = 5.9726e24;
-
-	system.planets[1].r.x = 149e9; //neptune
-	system.planets[1].r.y = 0;
-	system.planets[1].v.x = 0;
-	system.planets[1].v.y = 29783.;
-	system.planets[1].m = 5.9726e24;
-*/
-
-
-
-
-
-
-	FILE* F = fopen("data.txt", "w");
-	FILE* F1 = fopen("data1.txt", "w");
-	FILE* F2 = fopen("data2.txt", "w");
-
-	for (int i = 1; i <= TMAX; i++) {
-
-		system.move();
-
-		if (i % 10000 == 0){
-			for (int j = 0; j < system.N; j++)
-				fprintf(F, "%lf %lf ", system.planets[j].r.x, system.planets[j].r.y);
-			fprintf(F, "\n");
-		}
-		if (i % 100 == 0){
-			vector nxnastran = system.planets[3].r - system.planets[6].r;
-			vector solidworks = system.planets[3].r - system.planets[7].r;
-			fprintf(F1, "%lf %lf %lf %lf", nxnastran.x, nxnastran.y, solidworks.x, solidworks.y);
-			fprintf(F1, "\n");
-		}
-		if (i % 100 == 0){
-			vector catia = system.planets[7].r - system.planets[6].r;
-			fprintf(F2, "%lf %lf ", catia.x, catia.y);
-			fprintf(F2, "\n");
-		}
-	}
-	fclose(F);
-}
->>>>>>> master
+//todo Try to launch rocket to the Moon. Add Earth to frame of reference Rocket-Moon.

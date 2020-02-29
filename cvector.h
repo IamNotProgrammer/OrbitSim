@@ -17,7 +17,6 @@ public:
         res.y = b;
     }
 
-
     cvector operator+(const cvector &b) const {
         cvector res;
         res.x = b.x + x;

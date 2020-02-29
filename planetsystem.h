@@ -1,45 +1,47 @@
 #ifndef OSIM1_PLANETSYSTEM_H
 #define OSIM1_PLANETSYSTEM_H
 
-#include "planet.h"
+double G = 6.67408e-11;
 
-#define G 6.67408e-11
+#include "object.h"
 
 class planetsystem {
 public:
-    planet *planets;
+    object *objects;
     unsigned N;
 
     explicit planetsystem(unsigned n) {
-        planets = new planet[n];
+        objects = new object[n];
         N = n;
     }
 
     ~planetsystem() {
-        delete[]planets;
+        delete[]objects;
     }
 
-    planetsystem(const planetsystem &A) {
-        planets = new planet[A.N];
-        for (int i = 0; i < A.N; i++)
-            planets[i] = A.planets[i];
-        N = A.N;
+    planetsystem(const planetsystem &ps) {
+        N = ps.N;
+        objects = new object[ps.N];
+        for (int i = 0; i < ps.N; i++)
+            objects[i] = ps.objects[i];
     }
 
     void move() {
         cvector f;
         for (int i = 0; i < N; i++)
-            planets[i].f = cvector(0., 0.);
+            objects[i].f = cvector(0., 0.);
         for (int i = 0; i < N; i++) {
             for (int x = i + 1; x < N; x++) {
-                f = ((-G * (planets[i].m * planets[x].m)) / (pow(abs(planets[i].r - planets[x].r), 3))) *
-                    (planets[i].r - planets[x].r);
-                planets[i].f += -f;
-                planets[x].f += f;
+                f = ((-G * (objects[i].m * objects[x].m)) / (pow(abs(objects[i].r - objects[x].r), 3))) *
+                    (objects[i].r - objects[x].r);
+                objects[i].f += -f;
+                objects[x].f += f;
             }
-            planets[i].move();
+            objects[i].move();
         }
+
     }
+
 };
 
 #endif //OSIM1_PLANETSYSTEM_H
