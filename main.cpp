@@ -2,7 +2,9 @@
 #include <iostream>
 #include "planetsystem.h"
 
-#define TMAX 1e6
+#define TMAX 1.25e7
+//#define TMAX 1e7
+//#define TMAX 1e8
 
 using namespace std;
 
@@ -83,11 +85,9 @@ int main() {
     system.objects[10].v.y = system.objects[3].v.y + sin(alpha / 180 * M_PI) * rocketvabs;
     system.objects[10].m = 100.;
 
-    //todo update indexes
-
-    FILE *entirepsout = fopen("/home/vadimsam/entireplanetsystem.txt", "w");
-    FILE *moonrocket = fopen("/home/vadimsam/moonrocket.txt", "w");
-    FILE *F2 = fopen("/home/vadimsam/data2.txt", "w");
+    FILE *entirepsout = fopen("/home/vadimsam/eps.txt", "w");
+    FILE *moonrocket = fopen("/home/vadimsam/mr.txt", "w");
+    //FILE *F2 = fopen("/home/vadimsam/data2.txt", "w");
 
     for (int i = 1; i <= TMAX; i++) {
 
@@ -100,22 +100,22 @@ int main() {
         }
 
         if (i % 100 == 0) {
-            cvector moondx = system.objects[3].r - system.objects[9].r;
-            cvector rocketdx = system.objects[3].r - system.objects[10].r;
-            fprintf(moonrocket, "%lf %lf %lf %lf", moondx.x, moondx.y, rocketdx.x, rocketdx.y);
+            cvector moondr = system.objects[3].r - system.objects[9].r;
+            cvector rocketdr = system.objects[3].r - system.objects[10].r;
+            fprintf(moonrocket, "%lf %lf %lf %lf %lf %lf", moondr.x, moondr.y, rocketdr.x, rocketdr.y, system.objects[3].r.x, system.objects[3].r.y);
             fprintf(moonrocket, "\n");
         }
 
-        if (i % 100 == 0) {
+/*        if (i % 100 == 0) {
             cvector rocketdr = system.objects[10].r - system.objects[9].r;
             fprintf(F2, "%lf %lf ", rocketdr.x, rocketdr.y);
             fprintf(F2, "\n");
-        }
+        }*/
     }
 
     fclose(entirepsout);
     fclose(moonrocket);
-    fclose(F2);
+    //fclose(F2);
 }
 
-//todo Try to launch rocket to the Moon. Add Earth to frame of reference Rocket-Moon.
+//todo Try to launch rocket to the Moon.
