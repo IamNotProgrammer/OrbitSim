@@ -1,9 +1,9 @@
 #ifndef OSIM1_PLANETSYSTEM_H
 #define OSIM1_PLANETSYSTEM_H
 
-double G = 6.67408e-11;
-
 #include "object.h"
+
+#define G 6.67408e-11
 
 class planetsystem {
 public:
@@ -39,9 +39,7 @@ public:
             }
             objects[i].move();
         }
-
     }
-
 };
 
 #endif //OSIM1_PLANETSYSTEM_H

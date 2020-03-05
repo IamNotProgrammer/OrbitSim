@@ -1,10 +1,7 @@
-#include <cmath>
 #include <iostream>
 #include "planetsystem.h"
 
 #define TMAX 1.25e7
-//#define TMAX 1e7
-//#define TMAX 1e8
 
 using namespace std;
 
@@ -12,11 +9,11 @@ int main() {
 
     planetsystem system(11);
 
-    double alpha, beta, rocketvabs, rocketh;
+    double alpha, beta, rocketvelabs, rocketh;
 
     alpha = 90.;
     beta = 0.;
-    rocketvabs = 15.e3;
+    rocketvelabs = 15.e3;
     rocketh = 655.e4;
 
     system.objects[0].r.x = 0.; //sun
@@ -81,12 +78,12 @@ int main() {
 
     system.objects[10].r.x = system.objects[3].r.x + cos(beta / 180 * M_PI) * rocketh; //rocket
     system.objects[10].r.y = system.objects[3].r.y + sin(beta / 180 * M_PI) * rocketh;
-    system.objects[10].v.x = system.objects[3].v.x + cos(alpha / 180 * M_PI) * rocketvabs;
-    system.objects[10].v.y = system.objects[3].v.y + sin(alpha / 180 * M_PI) * rocketvabs;
+    system.objects[10].v.x = system.objects[3].v.x + cos(alpha / 180 * M_PI) * rocketvelabs;
+    system.objects[10].v.y = system.objects[3].v.y + sin(alpha / 180 * M_PI) * rocketvelabs;
     system.objects[10].m = 100.;
 
-    FILE *entirepsout = fopen("/home/vadimsam/eps.txt", "w");
-    FILE *moonrocket = fopen("/home/vadimsam/mr.txt", "w");
+    FILE *epsout = fopen("/home/vadimsam/eps.txt", "w");
+    FILE *mrout = fopen("/home/vadimsam/mr.txt", "w");
     //FILE *F2 = fopen("/home/vadimsam/data2.txt", "w");
 
     for (int i = 1; i <= TMAX; i++) {
@@ -95,15 +92,15 @@ int main() {
 
         if (i % 10000 == 0) {
             for (int j = 0; j < system.N; j++)
-                fprintf(entirepsout, "%lf %lf ", system.objects[j].r.x, system.objects[j].r.y);
-            fprintf(entirepsout, "\n");
+                fprintf(epsout, "%lf %lf ", system.objects[j].r.x, system.objects[j].r.y);
+            fprintf(epsout, "\n");
         }
 
         if (i % 100 == 0) {
             cvector moondr = system.objects[3].r - system.objects[9].r;
             cvector rocketdr = system.objects[3].r - system.objects[10].r;
-            fprintf(moonrocket, "%lf %lf %lf %lf %lf %lf", moondr.x, moondr.y, rocketdr.x, rocketdr.y, system.objects[3].r.x, system.objects[3].r.y);
-            fprintf(moonrocket, "\n");
+            fprintf(mrout, "%lf %lf %lf %lf %lf %lf", moondr.x, moondr.y, rocketdr.x, rocketdr.y, system.objects[3].r.x, system.objects[3].r.y);
+            fprintf(mrout, "\n");
         }
 
 /*        if (i % 100 == 0) {
@@ -113,8 +110,8 @@ int main() {
         }*/
     }
 
-    fclose(entirepsout);
-    fclose(moonrocket);
+    fclose(epsout);
+    fclose(mrout);
     //fclose(F2);
 }
 
